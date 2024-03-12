@@ -836,6 +836,7 @@ failed:
   return HAL_FAILED;
 }
 
+#ifdef STM32H7XX
 static void resetSpiDevice(SPIDriver* spi) {
 #if STM32_SPI_USE_SPI1
   if (spi == &SPID1) {
@@ -873,6 +874,7 @@ static void resetSpiDevice(SPIDriver* spi) {
   }
 #endif // STM32_SPI_USE_SPI6
 }
+#endif // def STM32H7XX
 
 /**
  * @brief   Reads a block within a sequential read operation.
