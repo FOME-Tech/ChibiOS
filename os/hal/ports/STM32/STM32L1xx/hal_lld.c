@@ -65,10 +65,10 @@ static void hal_lld_backup_domain_init(void) {
 
   /* If enabled then the LSE is started.*/
 #if STM32_LSE_ENABLED
-  int rusefiLseCounter = 0;
+  int fomeLseCounter = 0;
   /* Waits until LSE is stable or times out. */
   RCC->CSR |= RCC_CSR_LSEON;
-  while ((!RUSEFI_STM32_LSE_WAIT_MAX || rusefiLseCounter++ < RUSEFI_STM32_LSE_WAIT_MAX)
+  while ((!FOME_STM32_LSE_WAIT_MAX || fomeLseCounter++ < FOME_STM32_LSE_WAIT_MAX)
       && (RCC->CSR & RCC_CSR_LSERDY) == 0)
     ;
 #endif
@@ -79,7 +79,7 @@ static void hal_lld_backup_domain_init(void) {
   if ((RCC->CSR & RCC_CSR_RTCEN) == 0) {
     /* Selects clock source.*/
 #if STM32_LSE_ENABLED
-    RCC->CSR |= (RCC->CSR & RCC_CSR_LSERDY) == 0 ? RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
+    RCC->CSR |= (RCC->CSR & RCC_CSR_LSERDY) == 0 ? FOME_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
 #else
     RCC->CSR |= STM32_RTCSEL;
 #endif

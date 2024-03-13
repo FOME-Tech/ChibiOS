@@ -64,7 +64,7 @@ static void hal_lld_backup_domain_init(void) {
   }
 
 #if STM32_LSE_ENABLED
-  int rusefiLseCounter = 0;
+  int fomeLseCounter = 0;
 #if defined(STM32_LSE_BYPASS)
   /* LSE Bypass.*/
   RCC->BDCR |= STM32_LSEDRV | RCC_BDCR_LSEON | RCC_BDCR_LSEBYP;
@@ -73,7 +73,7 @@ static void hal_lld_backup_domain_init(void) {
   RCC->BDCR |= STM32_LSEDRV | RCC_BDCR_LSEON;
 #endif
   /* Waits until LSE is stable or times out. */
-  while ((!RUSEFI_STM32_LSE_WAIT_MAX || rusefiLseCounter++ < RUSEFI_STM32_LSE_WAIT_MAX)
+  while ((!FOME_STM32_LSE_WAIT_MAX || fomeLseCounter++ < FOME_STM32_LSE_WAIT_MAX)
       && (RCC->BDCR & RCC_BDCR_LSERDY) == 0)
     ;
 #endif
@@ -84,7 +84,7 @@ static void hal_lld_backup_domain_init(void) {
   if ((RCC->BDCR & RCC_BDCR_RTCEN) == 0) {
     /* Selects clock source.*/
 #if STM32_LSE_ENABLED
-    RCC->BDCR |= (RCC->BDCR & RCC_BDCR_LSERDY) == 0 ? RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
+    RCC->BDCR |= (RCC->BDCR & RCC_BDCR_LSERDY) == 0 ? FOME_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
 #else
     RCC->BDCR |= STM32_RTCSEL;
 #endif
