@@ -672,6 +672,10 @@
 #error "LSE not enabled, required by STM32_USART1SW"
 #endif
 
+#if (FOME_STM32_LSE_WAIT_MAX > 0) && (FOME_STM32_LSE_WAIT_MAX_RTCSEL == STM32_RTCSEL_LSE)
+#error "LSE not enabled, required by FOME_STM32_LSE_WAIT_MAX_RTCSEL"
+#endif
+
 #if STM32_RTCSEL == STM32_RTCSEL_LSE
 #error "LSE not enabled, required by STM32_RTCSEL"
 #endif
