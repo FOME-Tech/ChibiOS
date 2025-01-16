@@ -61,7 +61,15 @@ static inline void init_bkp_domain(void) {
   PWR->CR1 |= PWR_CR1_DBP;
 
   /* Reset BKP domain if different clock source selected.*/
-  if ((RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL) {
+  if (
+#if STM32_LSE_ENABLED
+      (
+       fomeLseCounter >= FOME_STM32_LSE_MAX_WAIT
+       && (RCC->BDCR & STM32_RTCSEL_MASK) != FOME_STM32_LSE_WAIT_MAX_RTCSEL
+      ) || fomeLseCounter < FOME_STM32_LSE_MAX_WAIT
+      &&
+#endif
+      (RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL) {
     /* Backup domain reset.*/
     RCC->BDCR = RCC_BDCR_BDRST;
     RCC->BDCR = 0;

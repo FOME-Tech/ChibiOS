@@ -58,7 +58,15 @@ static void hal_lld_backup_domain_init(void) {
 
 #if HAL_USE_RTC
   /* Reset BKP domain if different clock source selected.*/
-  if ((RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL) {
+  if (
+#if STM32_LSE_ENABLED
+      (
+       fomeLseCounter >= FOME_STM32_LSE_MAX_WAIT
+       && (RCC->BDCR & STM32_RTCSEL_MASK) != FOME_STM32_LSE_WAIT_MAX_RTCSEL
+      ) || fomeLseCounter < FOME_STM32_LSE_MAX_WAIT
+      &&
+#endif
+      (RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL) {
     /* Backup domain reset.*/
     RCC->BDCR = RCC_BDCR_BDRST;
     RCC->BDCR = 0;
