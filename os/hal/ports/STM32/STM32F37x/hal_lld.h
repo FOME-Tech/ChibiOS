@@ -345,20 +345,20 @@
 /**
  * @brief   Number of times to busy-loop waiting for LSE clock source.
  * @note    The default value of 0 disables this behavior.
- * @note    See also RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL.
+ * @note    See also FOME_STM32_LSE_WAIT_MAX_RTCSEL.
  */
-#if !defined(RUSEFI_STM32_LSE_WAIT_MAX) || defined(__DOXYGEN__)
-#define RUSEFI_STM32_LSE_WAIT_MAX           0
+#if !defined(FOME_STM32_LSE_WAIT_MAX) || defined(__DOXYGEN__)
+#define FOME_STM32_LSE_WAIT_MAX           0
 #endif
 
 /**
  * @brief   Fallback RTC clock source if stopped waiting for LSE clock source.
  * @note    If waiting for the LSE clock source times out due to
- *          RUSEFI_STM32_LSE_WAIT_MAX, this allows the RTC clock source to
+ *          FOME_STM32_LSE_WAIT_MAX, this allows the RTC clock source to
  *          fallback to another.
  */
-#if !defined(RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL) || defined(__DOXYGEN__)
-#define RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL    STM32_RTCSEL_LSE
+#if !defined(FOME_STM32_LSE_WAIT_MAX_RTCSEL) || defined(__DOXYGEN__)
+#define FOME_STM32_LSE_WAIT_MAX_RTCSEL    STM32_RTCSEL_LSE
 #endif
 
 /**
@@ -636,7 +636,15 @@
 #error "LSE not enabled, required by STM32_USART3SW"
 #endif
 
+#if (FOME_STM32_LSE_WAIT_MAX > 0) && (FOME_STM32_LSE_WAIT_MAX_RTCSEL == STM32_RTCSEL)
+#error "FOME_STM32_LSE_WAIT_MAX_RTCSEL is same as STM32_RTCSEL"
+#endif
+
 #else /* !STM32_LSE_ENABLED */
+
+#if (FOME_STM32_LSE_WAIT_MAX > 0) && (FOME_STM32_LSE_WAIT_MAX_RTCSEL == STM32_RTCSEL_LSE)
+#error "LSE not enabled, required by FOME_STM32_LSE_WAIT_MAX_RTCSEL"
+#endif
 
 #if STM32_RTCSEL == STM32_RTCSEL_LSE
 #error "LSE not enabled, required by STM32_RTCSEL"

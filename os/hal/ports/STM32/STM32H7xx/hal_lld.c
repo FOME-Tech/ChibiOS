@@ -57,14 +57,15 @@ static inline void init_bkp_domain(void) {
   PWR->CR1 |= PWR_CR1_DBP;
 
   /* Reset BKP domain if different clock source selected.*/
-  if ((RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL) {
+  if (((RCC->BDCR & STM32_RTCSEL_MASK) != STM32_RTCSEL)
+      && ((RCC->BDCR & STM32_RTCSEL_MASK) != FOME_STM32_LSE_WAIT_MAX_RTCSEL)) {
     /* Backup domain reset.*/
     RCC->BDCR = RCC_BDCR_BDRST;
     RCC->BDCR = 0;
   }
 
 #if STM32_LSE_ENABLED
-  int rusefiLseCounter = 0;
+  int fomeLseCounter = 0;
 #if defined(STM32_LSE_BYPASS)
   /* LSE Bypass.*/
   RCC->BDCR |= STM32_LSEDRV | RCC_BDCR_LSEON | RCC_BDCR_LSEBYP;
@@ -73,7 +74,7 @@ static inline void init_bkp_domain(void) {
   RCC->BDCR |= STM32_LSEDRV | RCC_BDCR_LSEON;
 #endif
   /* Waits until LSE is stable or times out. */
-  while ((!RUSEFI_STM32_LSE_WAIT_MAX || rusefiLseCounter++ < RUSEFI_STM32_LSE_WAIT_MAX)
+  while ((!FOME_STM32_LSE_WAIT_MAX || fomeLseCounter++ < FOME_STM32_LSE_WAIT_MAX)
       && (RCC->BDCR & RCC_BDCR_LSERDY) == 0)
     ;
 #endif
@@ -84,7 +85,7 @@ static inline void init_bkp_domain(void) {
   if ((RCC->BDCR & RCC_BDCR_RTCEN) == 0) {
     /* Selects clock source.*/
 #if STM32_LSE_ENABLED
-    RCC->BDCR |= (RCC->BDCR & RCC_BDCR_LSERDY) == 0 ? RUSEFI_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
+    RCC->BDCR |= (RCC->BDCR & RCC_BDCR_LSERDY) == 0 ? FOME_STM32_LSE_WAIT_MAX_RTCSEL : STM32_RTCSEL;
 #else
     RCC->BDCR |= STM32_RTCSEL;
 #endif
