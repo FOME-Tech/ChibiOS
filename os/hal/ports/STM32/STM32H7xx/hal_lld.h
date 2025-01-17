@@ -726,7 +726,7 @@
  *          fallback to another.
  */
 #if !defined(FOME_STM32_LSE_WAIT_MAX_RTCSEL) || defined(__DOXYGEN__)
-#define FOME_STM32_LSE_WAIT_MAX_RTCSEL    STM32_RTCSEL_LSE
+#define FOME_STM32_LSE_WAIT_MAX_RTCSEL    STM32_RTCSEL_LSE_CK
 #endif
 
 /**
