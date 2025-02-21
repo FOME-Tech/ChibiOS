@@ -74,6 +74,10 @@
 *****************************************************************************
 
 *** 21.11.4 ***
+- NEW: FDCANv1 and FDCANv2 filter enabled.
+- NEW: Recursive locks in RT and NIL made optional, only enabled if the
+       underlying port supports the capability.
+- NEW: Added STM32 FDCANv2 for STM32H7xx
 - NEW: Improved DAC driver, updated STM32 DACv1.
 - NEW: Removed oscillator stabilization delay on STM32 LSE and HSE when
        bypass mode is enabled.
@@ -85,6 +89,13 @@
        DHQC.
 - NEW: Reworked STM32 SDMMCv1 and SDMMCv2 drivers, better timeout and clock
        handling, improved speed for aligned buffers.
+- FIX: Fixed DMA2 not firing on STM32G431 (bug 1295).
+- FIX: Fixed wrong STM32 ADCv2 stop method (bug 1294).
+- FIX: Fixed STM32 OTGv1 driver does not re-enables endpoints on wakeup
+       (bug 1293).
+- FIX: Fixed missing assertion in OSLIB factory module (bug 1292).
+- FIX: Fixed problem in FDCANv1 driver for G4 (bug #1291).
+- FIX: Fixed problem in recursive locks functions (bug #1288).
 - FIX: Fixed ARMv8-M-ML port compile fail when FPU is enabled (bug #1281).
 - FIX: Fixed interrupts not enabled for STM32H735 TIM15, TIM16 and TIM17
        (bug #1280).
