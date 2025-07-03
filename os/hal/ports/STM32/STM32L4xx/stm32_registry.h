@@ -223,7 +223,7 @@
 
 #define STM32_HAS_TIM16                     TRUE
 #define STM32_TIM16_IS_32BITS               FALSE
-#define STM32_TIM16_CHANNELS                2
+#define STM32_TIM16_CHANNELS                1
 
 #define STM32_HAS_TIM3                      FALSE
 #define STM32_HAS_TIM4                      FALSE
@@ -463,7 +463,7 @@
 
 #define STM32_HAS_TIM16                     TRUE
 #define STM32_TIM16_IS_32BITS               FALSE
-#define STM32_TIM16_CHANNELS                2
+#define STM32_TIM16_CHANNELS                1
 
 #define STM32_HAS_TIM3                      FALSE
 #define STM32_HAS_TIM4                      FALSE
@@ -702,7 +702,7 @@
 
 #define STM32_HAS_TIM16                     TRUE
 #define STM32_TIM16_IS_32BITS               FALSE
-#define STM32_TIM16_CHANNELS                2
+#define STM32_TIM16_CHANNELS                1
 
 #define STM32_HAS_TIM4                      FALSE
 #define STM32_HAS_TIM5                      FALSE
@@ -978,11 +978,11 @@
 
 #define STM32_HAS_TIM16                     TRUE
 #define STM32_TIM16_IS_32BITS               FALSE
-#define STM32_TIM16_CHANNELS                2
+#define STM32_TIM16_CHANNELS                1
 
 #define STM32_HAS_TIM17                     TRUE
 #define STM32_TIM17_IS_32BITS               FALSE
-#define STM32_TIM17_CHANNELS                2
+#define STM32_TIM17_CHANNELS                1
 
 #define STM32_HAS_TIM9                      FALSE
 #define STM32_HAS_TIM10                     FALSE
@@ -1070,7 +1070,7 @@
 #if defined(STM32L496xx) || defined(STM32L4A6xx)
 
 /* Clock attributes.*/
-#define STM32_CLOCK_HAS_HSI48               FALSE
+#define STM32_CLOCK_HAS_HSI48               TRUE
 
 /* ADC attributes.*/
 #define STM32_HAS_ADC1                      TRUE
@@ -1150,7 +1150,8 @@
                                              RCC_AHB2ENR_GPIOEEN |          \
                                              RCC_AHB2ENR_GPIOFEN |          \
                                              RCC_AHB2ENR_GPIOGEN |          \
-                                             RCC_AHB2ENR_GPIOHEN)
+                                             RCC_AHB2ENR_GPIOHEN |          \
+                                             RCC_AHB2ENR_GPIOIEN)
 
 /* I2C attributes.*/
 #define STM32_HAS_I2C1                      TRUE
@@ -1261,9 +1262,11 @@
 
 #define STM32_HAS_TIM16                     TRUE
 #define STM32_TIM16_IS_32BITS               FALSE
+#define STM32_TIM16_CHANNELS                1
 
 #define STM32_HAS_TIM17                     TRUE
 #define STM32_TIM17_IS_32BITS               FALSE
+#define STM32_TIM17_CHANNELS                1
 
 #define STM32_HAS_TIM9                      FALSE
 #define STM32_HAS_TIM10                     FALSE

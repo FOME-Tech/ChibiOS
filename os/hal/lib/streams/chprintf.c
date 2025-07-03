@@ -76,13 +76,13 @@ static char *ch_ltoa(char *p, long num, unsigned radix) {
 }
 
 #if CHPRINTF_USE_FLOAT
-static const long pow10[FLOAT_PRECISION] = {
-    10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
-};
-
 #define rusefi_cisnan(f) (*(((int*) (&f))) == 0x7FC00000)
 
-static char *ftoa(char *p, float num, unsigned long precision) {
+static char *ftoa(char *p, double num, unsigned long precision) {
+  static const long chpow10[FLOAT_PRECISION] = {
+    10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
+  };
+
   long l;
 
 #pragma GCC diagnostic push
@@ -98,7 +98,7 @@ static char *ftoa(char *p, float num, unsigned long precision) {
   if ((precision == 0) || (precision > FLOAT_PRECISION)) {
     precision = FLOAT_PRECISION;
   }
-  precision = pow10[precision - 1];
+  precision = chpow10[precision - 1];
 
   l = (long)num;
   p = long_to_string_with_divisor(p, l, 10, 0);
