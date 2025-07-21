@@ -121,9 +121,9 @@ static inline void init_pwr(void) {
   while ((PWR->D3CR & PWR_D3CR_VOSRDY) == 0)
     ; /* CHTODO timeout handling.*/
 #if STM32_PWR_CR2 & PWR_CR2_BREN
-//  while ((PWR->CR2 & PWR_CR2_BRRDY) == 0)
-//    ;
-//  rccEnableBKPRAM(true);
+  while ((PWR->CR2 & PWR_CR2_BRRDY) == 0)
+    ;
+  rccEnableBKPRAM(true);
 #endif
 }
 
