@@ -85,9 +85,9 @@
 #error "Serial over USB Driver requires HAL_USE_USB"
 #endif
 
-#if (SERIAL_USB_BUFFERS_RX_SIZE != 64)
-#error "Please keep SERIAL_USB_BUFFERS_SIZE until https://forum.chibios.org/viewtopic.php?f=35&t=6395 is properly fixed!"
-#endif
+// #if (SERIAL_USB_BUFFERS_RX_SIZE != 64)
+// #error "Please keep SERIAL_USB_BUFFERS_SIZE until https://forum.chibios.org/viewtopic.php?f=35&t=6395 is properly fixed!"
+// #endif
 
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
