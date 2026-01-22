@@ -31,8 +31,6 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-#define ADC_LLD_ENHANCED_API
-
 /**
  * @name    Possible ADC errors mask bits.
  * @{
@@ -125,9 +123,15 @@
 #define ADC_CFGR_RES_MASK               (7U << 2U)
 #define ADC_CFGR_RES_16BITS             (0U << 2U)
 #define ADC_CFGR_RES_10BITS             (3U << 2U)
+#if !defined(STM32_ENFORCE_H7_REV_XY)
 #define ADC_CFGR_RES_14BITS             (5U << 2U)
 #define ADC_CFGR_RES_12BITS             (6U << 2U)
 #define ADC_CFGR_RES_8BITS              (7U << 2U)
+#else
+#define ADC_CFGR_RES_14BITS             (1U << 2U)
+#define ADC_CFGR_RES_12BITS             (2U << 2U)
+#define ADC_CFGR_RES_8BITS              (4U << 2U)
+#endif
 
 #define ADC_CFGR_EXTSEL_MASK            (15U << 5U)
 #define ADC_CFGR_EXTSEL_SRC(n)          ((n) << 5U)
@@ -195,7 +199,7 @@
 /**
  * @brief   Specifies the ADC samples width.
  * @note    Must be 8, 16 or 32.
- * @note    10, 12, 14 and 16 bits sampling modes must not be used when
+ * @note    10, 12, 14 and 16 bits sampling modes must not be used when 
  *          this option is set to 8.
  * @note    32 is useful when oversampling is activated.
  */
@@ -219,15 +223,6 @@
  */
 #if !defined(STM32_ADC_USE_ADC3) || defined(__DOXYGEN__)
 #define STM32_ADC_USE_ADC3                  FALSE
-#endif
-
-/**
- * @brief   ADC3 BDMA enable switch.
- * @details If set to @p TRUE the ADC3 uses BDMA.
- * @note    The default is @p FALSE.
- */
-#if !defined(STM32_ADC_ADC3_USE_BDMA) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC3_USE_BDMA             FALSE
 #endif
 
 /**
@@ -342,30 +337,19 @@
 #error "STM32_ADC_ADC12_DMA_STREAM not defined"
 #endif
 
-/* Check ADC3 DMA stream settings in mcuconf.h.*/
-#if STM32_ADC_USE_ADC3 && !defined(STM32_ADC_ADC3_BDMA_STREAM) &&           \
-                          !defined(STM32_ADC_ADC3_DMA_STREAM)
-#error "STM32_ADC_ADC3_DMA_STREAM or STM32_ADC_ADC3_BDMA_STREAM must be defined"
-#endif
-
-/* Check the assignment of BDMA stream for ADC3.*/
-#if STM32_ADC_USE_ADC3 && STM32_ADC_ADC3_USE_BDMA
-#if !STM32_BDMA_IS_VALID_STREAM(STM32_ADC_ADC3_BDMA_STREAM)
-#error "Invalid BDMA channel assigned to ADC3"
-#endif
-#endif
-
-/* Check the assignment of DMA stream for ADC3.*/
-#if STM32_ADC_USE_ADC3 && !STM32_ADC_ADC3_USE_BDMA
-#if !STM32_DMA_IS_VALID_STREAM(STM32_ADC_ADC3_DMA_STREAM)
-#error "Invalid DMA channel assigned to ADC3"
-#endif
+#if STM32_ADC_USE_ADC3 && !defined(STM32_ADC_ADC3_BDMA_STREAM)
+#error "STM32_ADC_ADC3_BDMA_STREAM not defined"
 #endif
 
 /* DMA channel range tests.*/
 #if STM32_ADC_USE_ADC12 &&                                                  \
     !STM32_DMA_IS_VALID_STREAM(STM32_ADC_ADC12_DMA_STREAM)
 #error "Invalid DMA channel assigned to ADC12"
+#endif
+
+#if STM32_ADC_USE_ADC3 &&                                                   \
+    !STM32_BDMA_IS_VALID_STREAM(STM32_ADC_ADC3_BDMA_STREAM)
+#error "Invalid DMA channel assigned to ADC3"
 #endif
 
 /* DMA priority tests.*/
@@ -390,44 +374,77 @@
 #error "Invalid IRQ priority assigned to ADC3"
 #endif
 
-#if ((STM32_ADC_SAMPLES_SIZE != 8)  &&                                      \
-     (STM32_ADC_SAMPLES_SIZE != 16) &&                                      \
+#if ((STM32_ADC_SAMPLES_SIZE != 8)  &&					                    \
+     (STM32_ADC_SAMPLES_SIZE != 16) &&				                        \
      (STM32_ADC_SAMPLES_SIZE != 32))
 #error "STM32_ADC_SAMPLES_SIZE must be 8, 16 or 32"
 #endif
 
 #if (STM32_ADC_SAMPLES_SIZE != 32) && STM32_ADC_DUAL_MODE
-#error "STM32_ADC_SAMPLES_SIZE != 32 not compatible with STM32_ADC_DUAL_MODE"
+#error "STM32_ADC_SAMPLES_SIZE = 32 not compatible with STM32_ADC_DUAL_MODE"
 #endif
 
+#if !defined(STM32_ENFORCE_H7_REV_XY)
 /* ADC clock source checks.*/
+#if (STM32_D1HPRE == STM32_D1HPRE_DIV1)
 #define STM32_ADC_SCLK                  STM32_HCLK
+#else
+#define STM32_ADC_SCLK                  (STM32_HCLK / 2)
+#endif
 
 #if STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_ADCCK
 /* CHTODO: also check ADC_CCR_PRESC.*/
-#define STM32_ADC12_CLOCK               STM32_ADCCLK
+#define STM32_ADC12_CLOCK               (STM32_ADCCLK / 2)
 #elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV1
-#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 1)
+#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 1 / 2)
 #elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV2
-#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 2)
+#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 2 / 2)
 #elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV4
-#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 4)
+#define STM32_ADC12_CLOCK               (STM32_ADC_SCLK / 4 / 2)
 #else
 #error "invalid clock mode selected for STM32_ADC_ADC12_CLOCK_MODE"
 #endif
 
 #if STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_ADCCK
 /* CHTODO: also check ADC_CCR_PRESC.*/
-#define STM32_ADC3_CLOCK                STM32_ADCCLK
+#define STM32_ADC3_CLOCK               (STM32_ADCCLK / 2)
 #elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV1
-#define STM32_ADC3_CLOCK                (STM32_ADC_SCLK / 1)
+#define STM32_ADC3_CLOCK               (STM32_ADC_SCLK / 1 / 2)
 #elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV2
-#define STM32_ADC3_CLOCK                (STM32_ADC_SCLK / 2)
+#define STM32_ADC3_CLOCK               (STM32_ADC_SCLK / 2 / 2)
 #elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV4
-#define STM32_ADC3_CLOCK                (STM32_ADC_SCLK / 4)
+#define STM32_ADC3_CLOCK               (STM32_ADC_SCLK / 4 / 2)
 #else
 #error "invalid clock mode selected for STM32_ADC_ADC3_CLOCK_MODE"
 #endif
+
+#else /* defined(STM32_ENFORCE_H7_REV_XY) */
+
+#if STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_ADCCK
+#define STM32_ADC12_CLOCK               STM32_ADCCLK
+#elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV1
+#define STM32_ADC12_CLOCK               (STM32_HCLK / 1)
+#elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV2
+#define STM32_ADC12_CLOCK               (STM32_HCLK / 2)
+#elif STM32_ADC_ADC12_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV4
+#define STM32_ADC12_CLOCK               (STM32_HCLK / 4)
+#else
+#error "invalid clock mode selected for STM32_ADC_ADC12_CLOCK_MODE"
+#endif
+
+#if STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_ADCCK
+#define STM32_ADC3_CLOCK                STM32_ADCCLK
+#elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV1
+#define STM32_ADC3_CLOCK                (STM32_HCLK / 1)
+#elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV2
+#define STM32_ADC3_CLOCK                (STM32_HCLK / 2)
+#elif STM32_ADC_ADC3_CLOCK_MODE == ADC_CCR_CKMODE_AHB_DIV4
+#define STM32_ADC3_CLOCK                (STM32_HCLK / 4)
+#else
+#error "invalid clock mode selected for STM32_ADC_ADC3_CLOCK_MODE"
+#endif
+
+#endif /* defined(STM32_ENFORCE_H7_REV_XY) */
 
 #if STM32_ADC12_CLOCK > STM32_ADCCLK_MAX
 #error "STM32_ADC12_CLOCK exceeding maximum frequency (STM32_ADCCLK_MAX)"
@@ -437,6 +454,7 @@
 #error "STM32_ADC3_CLOCK exceeding maximum frequency (STM32_ADCCLK_MAX)"
 #endif
 
+#if !defined(STM32_ENFORCE_H7_REV_XY)
 /* ADC boost checks.*/
 #if   STM32_ADC12_CLOCK >  6250000
 #define STM32_ADC12_BOOST               (1U << 8U)
@@ -458,6 +476,22 @@
 #define STM32_ADC3_BOOST                (0U << 8U)
 #endif
 
+#else /* defined(STM32_ENFORCE_H7_REV_XY) */
+
+#if STM32_ADC12_CLOCK > 20000000
+#define STM32_ADC12_BOOST               (1U << 8U)
+#else
+#define STM32_ADC12_BOOST               (0U << 8U)
+#endif
+
+#if STM32_ADC3_CLOCK > 20000000
+#define STM32_ADC3_BOOST                (1U << 8U)
+#else
+#define STM32_ADC3_BOOST                (0U << 8U)
+#endif
+
+#endif /* defined(STM32_ENFORCE_H7_REV_XY) */
+
 #if !defined(STM32_DMA_REQUIRED)
 #define STM32_DMA_REQUIRED
 #endif
@@ -469,17 +503,12 @@
 #endif
 #endif
 
-#if STM32_ADC_USE_ADC3 && STM32_ADC_ADC3_USE_BDMA
+#if STM32_ADC_USE_ADC3
 #define STM32_ADC_BDMA_REQUIRED
 #if !defined(STM32_BDMA_REQUIRED)
 #define STM32_BDMA_REQUIRED
-#elif !defined(STM32_ADC_DMA_REQUIRED)
-#define STM32_ADC_DMA_REQUIRED
-#if !defined(STM32_DMA_REQUIRED)
-#define STM32_DMA_REQUIRED
-#endif /* !defined(STM32_DMA_REQUIRED) */
-#endif /* !defined(STM32_BDMA_REQUIRED) */
-#endif /* STM32_ADC_USE_ADC3 && STM32_ADC_ADC3_USE_BDMA */
+#endif
+#endif
 
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
@@ -542,7 +571,7 @@ typedef union {
   /* Pointer to associated DMA channel.*/                                   \
   adc_ldd_dma_reference_t   data;                                           \
   /* DMA mode bit mask.*/                                                   \
-  uint32_t                  dmamode;
+  uint32_t                  dmamode
 #else
 #define adc_lld_driver_fields                                               \
   /* Pointer to the master ADCx registers block.*/                          \
@@ -552,7 +581,7 @@ typedef union {
   /* Pointer to associated DMA channel.*/                                   \
   adc_ldd_dma_reference_t   data;                                           \
   /* DMA mode bit mask.*/                                                   \
-  uint32_t                  dmamode;
+  uint32_t                  dmamode
 #endif
 
 /**
@@ -562,7 +591,7 @@ typedef union {
   /* ADC DIFSEL register initialization data.*/                             \
   uint32_t                  difsel;                                         \
   /* Calibration mode, specify ADCCALIN and/or ADCCALDIF bits in here.*/    \
-  uint32_t                  calibration;
+  uint32_t                  calibration
 
 #if (STM32_ADC_DUAL_MODE == TRUE) || defined(__DOXYGEN__)
 #define adc_lld_configuration_group_fields                                  \
@@ -617,7 +646,7 @@ typedef union {
   uint32_t                  ssmpr[2];                                       \
   /* Slave ADC SQRx register initialization data.                           \
      NOTE: This field is only present in dual mode.*/                       \
-  uint32_t                  ssqr[4];
+  uint32_t                  ssqr[4]
 #else /* STM32_ADC_DUAL_MODE == FALSE */
 #define adc_lld_configuration_group_fields                                  \
   uint32_t                  cfgr;                                           \
@@ -633,7 +662,7 @@ typedef union {
   uint32_t                  awd2cr;                                         \
   uint32_t                  awd3cr;                                         \
   uint32_t                  smpr[2];                                        \
-  uint32_t                  sqr[4];
+  uint32_t                  sqr[4]
 #endif /* STM32_ADC_DUAL_MODE == FALSE */
 
 /**
@@ -708,6 +737,7 @@ typedef union {
 #define ADC_CFGR2_OVSS_N(n)     ((n) << 5U)/**< @brief ovsr right shift */
 #define ADC_CFGR2_OVSR_N(n)     ((n) << 16U)/**< @brief oversampling ratio */
 #define ADC_CFGR2_LSHIFT_N(n)   ((n) << 28U)/**< @brief ovsr left shift */
+
 /** @} */
 
 /*===========================================================================*/
@@ -726,7 +756,7 @@ extern ADCDriver ADCD3;
 extern "C" {
 #endif
   void adc_lld_init(void);
-  msg_t adc_lld_start(ADCDriver *adcp);
+  void adc_lld_start(ADCDriver *adcp);
   void adc_lld_stop(ADCDriver *adcp);
   void adc_lld_start_conversion(ADCDriver *adcp);
   void adc_lld_stop_conversion(ADCDriver *adcp);
