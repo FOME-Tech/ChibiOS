@@ -81,6 +81,13 @@ static char *ftoa(char *p, double num, unsigned long precision) {
   };
   long l;
 
+  if (__builtin_isnan(num)) {
+    *p++ = 'N';
+    *p++ = 'a';
+    *p++ = 'N';
+    return p;
+  }
+
   if ((precision == 0) || (precision > FLOAT_PRECISION)) {
     precision = FLOAT_PRECISION;
   }
